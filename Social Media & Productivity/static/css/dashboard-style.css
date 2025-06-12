@@ -1,0 +1,144 @@
+/* Dashboard Unified Style Guide */
+
+:root {
+  /* Color Palette */
+  --bg-color: #f8f9fa;
+  --card-bg: #ffffff;
+  --primary: #5c80bc;
+  --secondary: #a594c1;
+  --accent-1: #4dc0b5;
+  --accent-2: #9be3de;
+  --accent-3: #cee5d5;
+  --text-main: #424242;
+  --text-secondary: #757575;
+  --shadow: 0 4px 6px rgba(0, 0, 0, 0.06);
+}
+
+body {
+  background: linear-gradient(to bottom right, #f8f9fa, #f0f2f5);
+  font-family: 'Nunito', 'Segoe UI', -apple-system, BlinkMacSystemFont, sans-serif;
+  color: var(--text-main);
+  line-height: 1.6;
+}
+
+/* Card Styling */
+.card {
+  background-color: var(--card-bg);
+  border-radius: 12px;
+  box-shadow: var(--shadow);
+  border: none;
+  margin-bottom: 20px;
+  transition: transform 0.2s, box-shadow 0.2s;
+}
+
+.card:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 6px 12px rgba(0, 0, 0, 0.08);
+}
+
+.card-header {
+  border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+  background-color: transparent;
+  padding: 15px 20px;
+}
+
+.card-title {
+  font-size: 1.2rem;
+  font-weight: 600;
+  margin-bottom: 0;
+}
+
+/* Section Styling */
+.context-section {
+  padding: 1.5rem 0;
+  margin-bottom: 1.5rem;
+}
+
+.context-section h2, 
+.main-point-section h2, 
+.deep-dive-section h2 {
+  font-size: 1.6rem;
+  font-weight: 700;
+  margin-bottom: 1.2rem;
+  color: var(--primary);
+  border-left: 4px solid var(--secondary);
+  padding-left: 15px;
+}
+
+.main-point-section {
+  padding: 1rem 0;
+  margin-bottom: 2rem;
+}
+
+.deep-dive-section {
+  padding: 1.5rem 0;
+  margin-bottom: 1.5rem;
+  background-color: rgba(245, 245, 247, 0.5);
+  border-radius: 10px;
+  padding: 20px;
+}
+
+/* Summary Cards */
+.summary-card {
+  text-align: center;
+  padding: 1rem;
+  transition: transform 0.2s;
+}
+
+.summary-card:hover {
+  transform: translateY(-5px);
+}
+
+.summary-card i {
+  font-size: 1.8rem;
+  color: var(--primary);
+  margin-bottom: 0.5rem;
+}
+
+.summary-value {
+  font-size: 2rem;
+  font-weight: 700;
+  color: var(--primary);
+}
+
+.summary-label {
+  font-size: 0.9rem;
+  color: var(--text-secondary);
+}
+
+/* Chart Containers */
+.chart-container {
+  height: 300px;
+  margin-bottom: 20px;
+}
+
+/* Navbar Styling */
+.navbar {
+  background-color: white;
+  box-shadow: var(--shadow);
+}
+
+.navbar-brand {
+  font-weight: 700;
+  color: var(--primary) !important;
+}
+
+.nav-link {
+  color: var(--text-secondary) !important;
+  transition: color 0.2s;
+}
+
+.nav-link:hover, .nav-link.active {
+  color: var(--primary) !important;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+  .chart-container {
+    height: 250px;
+  }
+  
+  .summary-value {
+    font-size: 1.6rem;
+  }
+}

@@ -1,0 +1,269 @@
+{% extends 'layout.html' %}
+
+{% block content %}
+<div class="dashboard-container">
+    <h2>Tactical Dashboard</h2>
+    
+    <!-- Context Section -->
+    <div class="section-container context-section" style="background-color: #f8f9fa; padding: 15px; border-radius: 8px; margin-bottom: 25px; border-left: 5px solid #007bff;">
+        <h3><i class="fas fa-info-circle"></i> Context</h3>
+        <p class="lead">
+            <strong>Focus:</strong> Actionable insights for immediate team improvement<br>
+            <strong>Target Audience:</strong> Team managers, middle management, decision makers
+        </p>
+        <p>This dashboard provides tactical insights that can be used to implement immediate changes and improvements to team productivity and wellbeing.</p>
+    </div>
+    
+    <!-- Main Point Section (4 charts) -->
+    <div class="section-container main-point-section" style="background-color: #fff; padding: 15px; border-radius: 8px; margin-bottom: 25px; border-left: 5px solid #dc3545;">
+        <h3><i class="fas fa-chart-line"></i> Main Point</h3>
+        <div class="row">
+            <div class="col-md-6">
+                <div class="chart-container">
+                    <h4>Average Breaks</h4>
+                    <div id="avgBreaksChart" style="width: 100%; height: 200px; display: flex; align-items: center; justify-content: center;">
+                        <div class="text-center">
+                            <span id="avgBreaksValue" style="font-size: 36px; font-weight: bold; color: #dc3545;">0</span>
+                            <p>breaks/day</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-6">
+                <div class="chart-container">
+                    <h4>Most Productive Age</h4>
+                    <div id="productiveAgeChart" style="width: 100%; height: 200px; display: flex; align-items: center; justify-content: center;">
+                        <div class="text-center">
+                            <span id="productiveAgeValue" style="font-size: 36px; font-weight: bold; color: #28a745;">0</span>
+                            <p>years</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="row mt-3">
+            <div class="col-md-6">
+                <div class="chart-container">
+                    <h4>Highest Productive Job</h4>
+                    <div id="productiveJobChart" style="width: 100%; height: 200px; display: flex; align-items: center; justify-content: center;">
+                        <div class="text-center">
+                            <span id="productiveJobValue" style="font-size: 30px; font-weight: bold; color: #fd7e14;">Unknown</span>
+                            <p>job type</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-6">
+                <div class="chart-container">
+                    <h4>Social Media Productivity Impact</h4>
+                    <div id="socialImpactChart" style="width: 100%; height: 200px; display: flex; align-items: center; justify-content: center;">
+                        <div class="text-center">
+                            <span id="socialImpactValue" style="font-size: 36px; font-weight: bold; color: #17a2b8;">0</span>
+                            <p>% change</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Deep Dive Section -->
+    <div class="section-container deep-dive-section" style="background-color: #fff; padding: 15px; border-radius: 8px; border-left: 5px solid #6f42c1;">
+        <h3><i class="fas fa-search-plus"></i> Deep Dive</h3>
+        <div class="row">
+            <div class="col-md-6">
+                <div class="chart-container">
+                    <h4>Breaks vs. Stress Level</h4>
+                    <p class="text-muted">Box plot showing relationship between work breaks and stress levels</p>
+                    <div id="breaksStressChart" style="width: 100%; height: 350px;"></div>
+                </div>
+            </div>
+            <div class="col-md-6">
+                <div class="chart-container">
+                    <h4>Daily Social Media Time by Job Type</h4>
+                    <p class="text-muted">Bar chart showing average social media usage across different job types</p>
+                    <div id="jobTypeChart" style="width: 100%; height: 350px;"></div>
+                </div>
+            </div>
+        </div>
+        <div class="row mt-4">
+            <div class="col-md-6">
+                <div class="chart-container">
+                    <h4>Age vs. Productivity Score</h4>
+                    <p class="text-muted">Scatter plot showing correlation between age and actual productivity</p>
+                    <div id="ageProductivityChart" style="width: 100%; height: 350px;"></div>
+                </div>
+            </div>
+            <div class="col-md-6">
+                <div class="chart-container">
+                    <h4>Productivity by Gender and Job Type</h4>
+                    <p class="text-muted">Heatmap showing productivity levels across different gender/job combinations</p>
+                    <div id="genderJobChart" style="width: 100%; height: 350px;"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Fetch data for main point metrics
+    fetch('/api/tactical_metrics')
+        .then(response => response.json())
+        .then(data => {
+            // Update the main point metrics
+            document.getElementById('avgBreaksValue').textContent = data.avg_breaks.toFixed(1);
+            document.getElementById('productiveAgeValue').textContent = data.most_productive_age;
+            document.getElementById('productiveJobValue').textContent = data.most_productive_job;
+            document.getElementById('socialImpactValue').textContent = data.productivity_impact.toFixed(1);
+        });
+        
+    // Fetch data for box plot (breaks vs stress)
+    fetch('/api/breaks_vs_stress')
+        .then(response => response.json())
+        .then(data => {
+            // Group data by break count
+            const breakGroups = {};
+            data.forEach(d => {
+                const breaks = d.breaks_during_work;
+                if (!breakGroups[breaks]) {
+                    breakGroups[breaks] = [];
+                }
+                breakGroups[breaks].push(d.stress_level);
+            });
+            
+            // Convert to box plot format
+            const boxPlotData = Object.keys(breakGroups).map(breakCount => ({
+                y: breakGroups[breakCount],
+                type: 'box',
+                name: breakCount + ' breaks',
+                boxpoints: 'outliers',
+                jitter: 0.3,
+                marker: {
+                    size: 4
+                }
+            }));
+            
+            const layout = {
+                title: 'Breaks During Work vs Stress Level',
+                xaxis: {
+                    title: 'Number of Breaks During Work'
+                },
+                yaxis: {
+                    title: 'Stress Level (0-10)'
+                }
+            };
+            
+            Plotly.newPlot('breaksStressChart', boxPlotData, layout);
+        });
+    
+    // Fetch data for bar chart (social media by job type)
+    fetch('/api/social_media_by_job_type')
+        .then(response => response.json())
+        .then(data => {
+            const jobTypes = data.map(d => d.job_type);
+            const avgTimes = data.map(d => d.avg_time);
+            
+            const barData = [{
+                x: jobTypes,
+                y: avgTimes,
+                type: 'bar',
+                marker: {
+                    color: 'rgba(50, 171, 96, 0.8)'
+                }
+            }];
+            
+            const layout = {
+                title: 'Average Daily Social Media Time by Job Type',
+                xaxis: {
+                    title: 'Job Type'
+                },
+                yaxis: {
+                    title: 'Average Daily Social Media Time (hours)'
+                }
+            };
+            
+            Plotly.newPlot('jobTypeChart', barData, layout);
+        });
+    
+    // Fetch data for scatter plot (age vs productivity)
+    fetch('/api/age_vs_productivity')
+        .then(response => response.json())
+        .then(data => {
+            const ages = data.map(d => d.age);
+            const productivityScores = data.map(d => d.actual_productivity_score);
+            
+            const scatterData = [{
+                x: ages,
+                y: productivityScores,
+                mode: 'markers',
+                type: 'scatter',
+                marker: {
+                    color: ages,
+                    colorscale: 'Viridis',
+                    size: 8,
+                    opacity: 0.7
+                }
+            }];
+            
+            const layout = {
+                title: 'Age vs Actual Productivity Score',
+                xaxis: {
+                    title: 'Age'
+                },
+                yaxis: {
+                    title: 'Actual Productivity Score'
+                },
+                hovermode: 'closest'
+            };
+            
+            Plotly.newPlot('ageProductivityChart', scatterData, layout);
+        });
+    
+    // Fetch data for gender/job productivity heatmap
+    fetch('/api/gender_job_productivity')
+        .then(response => response.json())
+        .then(data => {
+            // Process data for heatmap
+            const genders = [...new Set(data.map(d => d.gender))];
+            const jobTypes = [...new Set(data.map(d => d.job_type))];
+            
+            // Create matrix for heatmap
+            const zValues = [];
+            for (let i = 0; i < genders.length; i++) {
+                const row = [];
+                for (let j = 0; j < jobTypes.length; j++) {
+                    const match = data.find(d => d.gender === genders[i] && d.job_type === jobTypes[j]);
+                    row.push(match ? match.avg_productivity : null);
+                }
+                zValues.push(row);
+            }
+            
+            const heatmapData = [{
+                z: zValues,
+                x: jobTypes,
+                y: genders,
+                type: 'heatmap',
+                colorscale: 'Viridis',
+                colorbar: {
+                    title: 'Avg Productivity'
+                }
+            }];
+            
+            const layout = {
+                title: 'Productivity by Gender and Job Type',
+                xaxis: {
+                    title: 'Job Type'
+                },
+                yaxis: {
+                    title: 'Gender'
+                }
+            };
+            
+            Plotly.newPlot('genderJobChart', heatmapData, layout);
+        });
+});
+</script>
+{% endblock %}
